@@ -5,67 +5,162 @@ output: html_document
 
 ### Introduction
 
-An introduction of the problem domain and a description of the variable(s) you are choosing to analyze (and why!)
+I chose the dataset about prison/jail population per 100,000 people (rate) per county/state. I chose to analyze the trends in incarceration over time as well as comparing the jail population rates by state and race. I am interested in this topic because I want to understand how incarceration rates differ over time and location as well as within different identity groups.
 
 ### Summary Information
 
-Write a summary paragraph of findings that includes the 5 values calculated from your summary information R script
-
-These will likely be calculated using your DPLYR skills, answering questions such as: 
-
-- What is the average value of my variable across all the counties (in the current year)?
-- Where is my variable the highest / lowest?
-- How much has my variable change over the last N years?
-
-Feel free to calculate and report values that you find relevant. Again, remember that the purpose is to think about how these measure of incarceration vary by race.
+The mean total jail population rate in population per 100k people is 317.8509, the median is 193.91, and the max is 51021.86 across the United States. Within Washington, the county with the highest jail population rate is Yakima County, and the state mean jail population is 233.4392. 
 
 ### The Dataset
 
-Who collected the data?  
+Who collected the data? 
+- The data was collected by the Vera Institute of Justice
 How was the data collected or generated?  
-Why was the data collected?  
-How many observations (rows) are in your data?  
+- The data was collected through a federal agency, the Bureau of Justice Statistics
+Why was the data collected?
+- The data was collected to provide information on the jail population rates across the United States.
+How many observations (rows) are in your data? 
+- There are 153,811 observations in the data
 How many features (columns) are in the data?  
+- There are 23 features in the data
 What, if any, ethical questions or questions of power do you need to consider when working with this data?  
-What are possible limitations or problems with this data?   (at least 200 words)
-
+What are possible limitations or problems with this data?
+- I think that the data may be limited in that it only provides information on the jail population rates and does not provide information on the reasons for incarceration, the length of time spent in jail, and many other important factors that contribute to the criminal justice system. 
+- I think besides these limitations in the data, some problems with the data may be that the data is not up to date. Just looking at my first chart, the data does not even make it up to 2020. The jail population rates have probably changed since then, so the dataset is not representative of the current jail population rates. There may also be problems with the census data that the jail population rates are based on. There may be inaccuracies just out of human error in the data that could affect the jail population rates, and this may vary by location.
+- Some other things to worry about are the ethical implications of using this data. The data is about people who are incarcerated, and it is important to consider the privacy and dignity of incarcerated people. Although no sensitive information is included in the dataset, it is important to consider the implications of using data about incarcerated people, especially when it comes to the potential for stigmatization and discrimination as categorical features for identity such as race are included.
 
 ### Trends Over Time Chart
 
-Include a chart. Make sure to describe why you included the chart, and what patterns emerged
-
-The first chart that you will create and include will show the trend over time of your variable/topic. Think carefully about what you want to communicate to your user (you may have to find relevant trends in the dataset first!). Here are some requirements to help guide your design:
-
-- Show more than one, but fewer than ~10 trends
-  - This may mean showing the same measure for different locations or different racial groups. Think carefully about a meaningful comparison of locations (e.g., the top 10 counties in a state, top 10 states, etc.)
-- You must have clear x and y axis labels
-- The chart needs a clear title 
-- You need a legend for your different line colors and a clear legend title
-
-When we say "clear" or "human readable" titles and labels, that means that you should not just display the variable name.
-
-Here's an example of how to run an R script inside an RMarkdown file:
+This chart shows the mean jail population rate by year across the United States. The mean jail population rate has overall increased seemingly logarithmically over time. This is with some fluctuations, however, with the highest its reached in 2008.
 
 ``````{r, echo = FALSE, code = readLines("chart1_example.R")}
+library("ggplot2")
+library("dplyr")
+
+url <- "https://github.com/melaniewalsh/Neat-Datasets/blob/main/us-prison-jail-rates.csv?raw=true"
+prison_data <- read.csv(url)
+
+filtered_data <- prison_data %>% filter(!is.na(total_jail_pop_rate))
+
+plot <- ggplot(filtered_data, aes(x = year, y = total_jail_pop_rate)) +
+  geom_line(color = "blue", size = 1) +
+  geom_point(color = "red", size = 2) +
+  labs(title = "Total Jail Population Rate Over the Years",
+       x = "Year", y = "Total Jail Population Rate") +
+  theme_minimal() +
+  theme(plot.title = element_text(hjust = 0.5, size = 15, face = "bold"),
+        axis.title.x = element_text(size = 15, face = "bold"),
+        axis.title.y = element_text(size = 15, face = "bold"),
+        axis.text.x = element_text(size = 10),
+        axis.text.y = element_text(size = 10))
+
+print(plot)
 ```
 
 ### Variable Comparison Chart
 
-Include a chart. Make sure to describe why you included the chart, and what patterns emerged
+The first plot is a comparison of jail and prison population rates by state through a scatterplot. This chart shows that the prison population rates are generally higher than the jail population rates. We can also sort of see the differences within states, with each state having a different color and size of the point representing the total population.
 
-The second chart that you will create and include will show how two different (continuous) variables are related to one another. Again, think carefully about what such a comparison means and what you want to communicate to your user (you may have to find relevant trends in the dataset first!). Here are some requirements to help guide your design:
+The second plot is a box plot that compares the jail population rates for Black and White people. This chart shows that the jail population rates for Black people are generally higher than the jail population rates for White people. This could be due to systemic racism in the criminal justice system, including racial profiling, biased policing, harsher sentencing, overpolicing in Black communities, etc. The box plot also shows that there is more variability in the jail population rates for Black people compared to White people.
 
-- You must have clear x and y axis labels
-- The chart needs a clear title 
-- If you choose to add a color encoding (not required), you need a legend for your different color and a clear legend title
+``````{r, echo = FALSE, code = readLines("chart1_example.R")}
+library("ggplot2")
+library("dplyr")
+
+url <- "https://github.com/melaniewalsh/Neat-Datasets/blob/main/us-prison-jail-rates.csv?raw=true"
+prison_data <- read.csv(url)
+
+filtered_data <- prison_data %>%
+  filter(!is.na(total_jail_pop_rate) & !is.na(total_prison_pop_rate))
+
+plot <- ggplot(filtered_data,
+               aes(x = total_jail_pop_rate, y = total_prison_pop_rate,
+                   color = state, size = total_pop)) +
+  geom_point(alpha = 0.7) +
+  scale_size_continuous(range = c(1, 10), name = "Total Population") +
+  labs(title = "Comparison of Jail and Prison Population Rates by State",
+       x = "Total Jail Population Rate",
+       y = "Total Prison Population Rate",
+       color = "State") +
+  theme_minimal() +
+  theme(plot.title = element_text(hjust = 0.5, size = 15, face = "bold"),
+        axis.title.x = element_text(size = 15, face = "bold"),
+        axis.title.y = element_text(size = 15, face = "bold"),
+        axis.text.x = element_text(size = 15),
+        axis.text.y = element_text(size = 10),
+        legend.title = element_text(size = 15),
+        legend.text = element_text(size = 15))
+
+print(plot)
+```
+
+``````{r, echo = FALSE, code = readLines("chart1_example.R")}
+library("ggplot2")
+library("dplyr")
+library("tidyr")
+
+url <- "https://github.com/melaniewalsh/Neat-Datasets/blob/main/us-prison-jail-rates.csv?raw=true"
+prison_data <- read.csv(url)
+
+box_plot_data <- prison_data %>%
+  select(state, black_jail_pop_rate, white_jail_pop_rate) %>%
+  pivot_longer(cols = c(black_jail_pop_rate, white_jail_pop_rate), 
+               names_to = "race", 
+               values_to = "jail_pop_rate") %>%
+  mutate(jail_pop_rate_log = log10(jail_pop_rate))
+
+plot <- ggplot(box_plot_data,
+               aes(x = race, y = jail_pop_rate_log, fill = race)) +
+  geom_boxplot() +
+  labs(title = "Comparison of Black & White Jail Population Rates (Log Scale)",
+       x = "Race",
+       y = "Log10 of Jail Population Rate",
+       fill = "Race") +
+  scale_x_discrete(labels = c("Black", "White")) +
+  theme_minimal() +
+  theme(plot.title = element_text(hjust = 0.5, size = 16, face = "bold"),
+        axis.title.x = element_text(size = 14, face = "bold"),
+        axis.title.y = element_text(size = 14, face = "bold"),
+        axis.text.x = element_text(size = 12),
+        axis.text.y = element_text(size = 12),
+        legend.title = element_text(size = 12),
+        legend.text = element_text(size = 10))
+
+print(plot)
+```
 
 ### Map
 
-Include a chart. Make sure to describe why you included the chart, and what patterns emerged
+This is a heatmap that shows the mean jail population rate by state and year. I think that this chart is interesting because it shows how the jail population rates have changed over time and how they differ by state. I think that this chart is important because it shows how the jail population rates are not uniform across the United States and looking at the increasing red along the right side of the map, we can see that the jail population rates have increased over time.
 
-The last chart that you will create and include will show how a variable is distributed geographically. Again, think carefully about what such a comparison means and what you want to communicate to your user (you may have to find relevant trends in the dataset first!). Here are some requirements to help guide your design:
+``````{r, echo = FALSE, code = readLines("chart1_example.R")}
+library("ggplot2")
+library("dplyr")
 
-- Your map needs a title
-- Your color scale needs a legend with a clear label
-- Use a map based coordinate system to set the aspect ratio of your map
+url <- "https://github.com/melaniewalsh/Neat-Datasets/blob/main/us-prison-jail-rates.csv?raw=true"
+prison_data <- read.csv(url)
 
+filtered_data <- prison_data %>% filter(!is.na(total_jail_pop_rate))
+
+state_year_data <- filtered_data %>%
+  group_by(state, year) %>%
+  summarize(mean_jail_pop_rate = mean(total_jail_pop_rate, na.rm = TRUE))
+
+plot <- ggplot(state_year_data,
+               aes(x = year, y = state, fill = mean_jail_pop_rate)) +
+  geom_tile(color = "white") +
+  scale_fill_gradient(low = "blue", high = "red", na.value = "grey50", 
+                      name = "Mean Jail Population Rate") +
+  labs(title = "Mean Jail Population Rate by State and Year",
+       x = "Year", y = "State") +
+  theme_minimal() +
+  theme(plot.title = element_text(hjust = 0.5, size = 15, face = "bold"),
+        axis.title.x = element_text(size = 15, face = "bold"),
+        axis.title.y = element_text(size = 15, face = "bold"),
+        axis.text.x = element_text(size = 10, angle = 45, hjust = 1),
+        axis.text.y = element_text(size = 10),
+        legend.title = element_text(size = 10),
+        legend.text = element_text(size = 10))
+
+print(plot)
+```
